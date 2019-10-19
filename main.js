@@ -33,7 +33,7 @@ function preload ()
   this.load.image('bg', 'assets/background.png');
   this.load.image('ground', 'assets/platform.png');
   this.load.image('fullscreen', 'assets/fullscreen.png');
-  this.load.spritesheet('player', 'assets/Omino.png', { frameWidth: 177, frameHeight: 265 });
+  this.load.spritesheet('player', 'assets/omino.png', { frameWidth: 177, frameHeight: 265 });
 }
 
 function create ()
