@@ -10,7 +10,7 @@ var config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 1600 },
-            debug: false
+            debug: true
         }
     },
     scene: {
@@ -21,9 +21,12 @@ var config = {
 };
 
 var player
+var top_water
+var water
+var pala_eolica
 var cursors
-var jumpForce = -1000
-var jump = 0
+var jumpForce = -800
+var gameOver = false
 
 
 
@@ -34,40 +37,48 @@ function preload ()
   this.load.image('bg', 'assets/background.png');
   this.load.image('ground', 'assets/platform.png');
   this.load.image('fullscreen', 'assets/fullscreen.png');
-  this.load.spritesheet('player', 'assets/omino.png', { frameWidth: 177, frameHeight: 265 });
+  this.load.spritesheet('player', 'assets/omino.png', { frameWidth: 200, frameHeight: 265 });
+  this.load.image('top_water', 'assets/top_water.png');
+  this.load.image('water', 'assets/water.png');
+  this.load.image('pala_eolica', 'assets/pala_eolica.png');
 }
 
 function create ()
 {
-  this.add.image(0, 0, 'background').setOrigin(0, 0);
+  this.add.image(0, -100, 'bg').setOrigin(0, 0);
 
-  player = this.physics.add.sprite(100, 900, 'player');
+  player = this.physics.add.sprite(100, 590, 'player');
   player.setCollideWorldBounds(true);
-  player.setScale(0.3);
+  player.setScale(0.4);
+
 
   this.playerJumps = 0;
 
   this.anims.create({
       key: 'right',
-      frames: this.anims.generateFrameNumbers('player', { start: 0, end: 4 }),
+      frames: this.anims.generateFrameNumbers('player', { start: 0, end: 3 }),
       frameRate: 6,
       repeat: 0
   });
 
   ground = this.physics.add.staticGroup();
-  ground.create(0, 1000, 'ground').setOrigin(0, 0).setScale(6).refreshBody();
+  ground.create(0, 642, 'ground').setOrigin(0, 0).setScale(100).refreshBody();
 
   this.physics.add.collider(player, ground);
 
-  platforms = this.physics.add.staticGroup();
+  top_water = this.add.tileSprite(0,700, 16069, 205, 'top_water');
+  top_water.setOrigin(0, 0);
+  top_water.setScale(4);
+  top_water.setAlpha(0.7);
+  water = this.add.tileSprite(0, 870, 16069, 414, 'water');
+  water.setOrigin(0, 0);
+  water.setScale(4);
+  water.setAlpha(0.7);
 
-  platforms.create(600, 450, 'ground').setScale(1.5).refreshBody();
-  platforms.create(50, 250, 'ground').setScale(1.5).refreshBody();
-  platforms.create(750, 120, 'ground').setScale(1.5).refreshBody();
+  this.physics.add.existing(water);
+  water.body.setAllowGravity(false);
 
-  this.physics.add.collider(player, platforms);
-
-  var button = this.add.image(800-16, 16, 'fullscreen', 0).setOrigin(1, 0).setInteractive();
+  var button = this.add.image(1080-16, 16, 'fullscreen', 0).setOrigin(1, 0).setInteractive();
   button.setScale(0.1);
   button.on('pointerup', function () {
 
@@ -82,36 +93,49 @@ function create ()
   }, this);
   button.setScrollFactor(0);
 
-  this.cameras.main.setBounds(0, 0, 10080, 720);
-  this.physics.world.setBounds(0, 0, 10080, 1080);
+  this.cameras.main.setBounds(0, 0, 16069, 720);
+  this.physics.world.setBounds(0, 0, 16069, 720);
   this.cameras.main.startFollow(player, true, 0.08, 0.08);
 
   this.input.setTopOnly(false);
 
-  this.input.on('pointerdown', function (pointer, thid) {
-
-      if (jump === 0)
+  this.input.on('pointerdown', function (pointer, jump) {
+      jump = 0
+      if (player.body.touching.down && jump === 0)
       {
           player.setVelocityY(jumpForce);
           jump = 1
+          console.log(jump);
       }
-      else if (jump = 1) {
-        player.setVelocityY(jumpForce);
-        jump++
-      }
+
       else {
-        player.setVelocityY(0);
-        jump = 0;
+
+        jump = 0
       }
   }, this);
+
+
+
 }
+
 function update ()
 {
-
+      if (gameOver)
+      {
+        return;
+      }
       player.setVelocityX(500);
-
       player.anims.play('right', true);
 
+      top_water.y += -0.2;
+      water.y += -0.2;
+      this.physics.add.overlap(player, water, drown, null, this);
 
-      console.log(player.body.velocity.y);
+      //console.log(player.body.velocity.y);
+}
+
+function drown(player, water) {
+  this.physics.pause();
+
+  gameOver = true;
 }
