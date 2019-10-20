@@ -17,9 +17,11 @@ var config = {
         preload: preload,
         create: create,
         update: update
+
     }
 };
 
+var bg
 var player
 var top_water
 var water
@@ -47,13 +49,16 @@ function preload ()
   this.load.image('oil', 'assets/oil.png');
   this.load.image('tornado', 'assets/tornado.png');
   this.load.image('top_water', 'assets/top_water.png');
-  this.load.image('water', 'assets/water.png');
   this.load.image('pala_eolica', 'assets/pala_eolica.png');
 }
 
 function create ()
 {
-  this.add.image(0, -100, 'bg').setOrigin(0, 0);
+  bg = this.add.tileSprite(0, 0, 16069, 608, 'bg');
+  bg.setOrigin(0, 0);
+  bg.setScale(1.2);
+
+
 
   player = this.physics.add.sprite(100, 590, 'player');
   player.setCollideWorldBounds(true);
@@ -78,7 +83,7 @@ function create ()
   top_water.setOrigin(0, 0);
   top_water.setScale(4);
   top_water.setAlpha(0.7);
-  water = this.add.tileSprite(0, 870, 16069, 414, 'water');
+  water = this.add.tileSprite(0, 870, 16069, 714, 'top_water');
   water.setOrigin(0, 0);
   water.setScale(4);
   water.setAlpha(0.7);
@@ -160,7 +165,7 @@ function update ()
 {
       if (gameOver)
       {
-        return;
+        this.scene.start("Drown.death");
       }
       player.setVelocityX(500);
       player.anims.play('right', true);
