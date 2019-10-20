@@ -124,11 +124,11 @@ function create ()
 
   top_water = this.add.tileSprite(0,700, 16069, 205, 'top_water');
   top_water.setOrigin(0, 0);
-  top_water.setScale(5);
+  top_water.setScale(6);
   top_water.setAlpha(0.7);
   water = this.add.tileSprite(0, 870, 16069, 714, 'top_water');
   water.setOrigin(0, 0);
-  water.setScale(5);
+  water.setScale(6);
   water.setAlpha(0.7);
 
   this.physics.add.existing(top_water);
