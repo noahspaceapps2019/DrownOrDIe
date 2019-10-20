@@ -10,7 +10,7 @@ var config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 1600 },
-            debug: false
+            debug: true
         }
     },
     scene: {
@@ -34,6 +34,7 @@ var jumpForce = -800
 var timedEvent1
 var timedEvent2
 var winObject
+var tip
 var win = false
 var gameOver = false
 
@@ -52,6 +53,7 @@ function preload ()
   this.load.image('tornado', 'assets/tornado.png');
   this.load.image('top_water', 'assets/top_water.png');
   this.load.image('pala_eolica', 'assets/pala_eolica.png');
+  this.load.image('tip', 'assets/tip.png');
 }
 
 function create ()
@@ -162,17 +164,26 @@ function create ()
   timedEvent1 = this.time.delayedCall({delay: 1000, callBack: water_down, callBackScope: this});
   timedEvent2 = this.time.delayedCall({delay: 1000, callBack: water_up, callBackScope: this});
 
-  winObject = this.add.sprite(16069 - 100, 50, 'pala_eolica');
+  winObject = this.physics.add.sprite(16069 - 100, 540, 'pala_eolica');
   winObject.setScale(0.8);
+  winObject.body.setAllowGravity(false);
+
+  tip = this.add.image(0, -30, 'tip');
+  tip.setOrigin(0, 0);
+  tip.setScale(0.5);
+  tip.setActive(false);
+  tip.setVisible(false);
+  tip.setScrollFactor(0);
 }
 
 function update ()
 {
+
       if (gameOver)
       {
         return;
       }
-      player.setVelocityX(500);
+      player.setVelocityX(800);
       player.anims.play('right', true);
 
       top_water.y += -0.12;
@@ -181,8 +192,16 @@ function update ()
       this.physics.add.overlap(player, water, drown, null, this);
       this.physics.add.overlap(player, pala_eolica, water_down, null, this);
       this.physics.add.overlap(player, oil, water_up, null, this);
+      this.physics.add.overlap(player, winObject, gameWin, null, this);
 
       //console.log(player.body.velocity.y);
+}
+
+function gameWin(player, winObject) {
+    this.physics.pause();
+    tip.setActive(true);
+    tip.setVisible(true);
+    gameOver = true;
 }
 
 function drown(player, water) {
@@ -195,7 +214,7 @@ function water_down(player, pala_eolica) {
 
     top_water.y += 30;
     water.y += 30;
-    console.log(water.y);
+    //console.log(water.y);
 
 }
 
