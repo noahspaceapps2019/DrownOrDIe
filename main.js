@@ -10,7 +10,7 @@ var config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 1600 },
-            debug: true
+            debug: false
         }
     },
     scene: {
@@ -28,13 +28,17 @@ var top_water
 var water
 var pala_eolica
 var oil
-var tornado
+var tornado1
+var tornado2
 var cursors
 var jumpForce = -800
 var timedEvent1
 var timedEvent2
 var winObject
 var tip
+var gameover_tip
+var reload1
+var reload2
 var win = false
 var gameOver = false
 
@@ -54,6 +58,7 @@ function preload ()
   this.load.image('top_water', 'assets/top_water.png');
   this.load.image('pala_eolica', 'assets/pala_eolica.png');
   this.load.image('tip', 'assets/tip.png');
+  this.load.image('gameover', 'assets/gameover.png');
 }
 
 function create ()
@@ -81,8 +86,6 @@ function create ()
   ground = this.physics.add.staticGroup();
   ground.create(0, 642, 'ground').setOrigin(0, 0).setScale(100).refreshBody();
 
-  this.physics.add.collider(player, ground);
-
   pala_eolica = this.physics.add.group({
     key: 'pala_eolica',
     repeat: 4,
@@ -109,6 +112,16 @@ function create ()
 
   });
 
+  tornado1 = this.physics.add.sprite(8035, 555, 'tornado');
+  tornado1.setScale(0.9);
+
+  tornado2 = this.physics.add.sprite(16069 - 200, 555, 'tornado');
+  tornado2.setScale(0.9);
+
+  winObject = this.physics.add.sprite(16069 - 100, 540, 'pala_eolica');
+  winObject.setScale(0.8);
+  winObject.body.setAllowGravity(false);
+
   top_water = this.add.tileSprite(0,700, 16069, 205, 'top_water');
   top_water.setOrigin(0, 0);
   top_water.setScale(5);
@@ -123,8 +136,8 @@ function create ()
   this.physics.add.existing(water);
   water.body.setAllowGravity(false);
 
-  var button = this.add.image(1080-16, 16, 'fullscreen', 0).setOrigin(1, 0).setInteractive();
-  button.setScale(0.4);
+  var button = this.add.image(1080-20, 16, 'fullscreen', 0).setOrigin(1, 0).setInteractive();
+  button.setScale(0.35);
   button.on('pointerup', function () {
 
           if (this.scale.isFullscreen)
@@ -164,16 +177,29 @@ function create ()
   timedEvent1 = this.time.delayedCall({delay: 1000, callBack: water_down, callBackScope: this});
   timedEvent2 = this.time.delayedCall({delay: 1000, callBack: water_up, callBackScope: this});
 
-  winObject = this.physics.add.sprite(16069 - 100, 540, 'pala_eolica');
-  winObject.setScale(0.8);
-  winObject.body.setAllowGravity(false);
-
-  tip = this.add.image(0, -30, 'tip');
+  tip = this.add.image(80, 20, 'tip');
   tip.setOrigin(0, 0);
-  tip.setScale(0.5);
+  tip.setScale(0.75);
   tip.setActive(false);
   tip.setVisible(false);
   tip.setScrollFactor(0);
+
+  gameover_tip = this.add.image(115, 120, 'gameover');
+  gameover_tip.setOrigin(0, 0);
+  gameover_tip.setScale(0.85);
+  gameover_tip.setActive(false);
+  gameover_tip.setVisible(false);
+  gameover_tip.setScrollFactor(0);
+
+  reload1 = this.add.text(300, 480, "Reload the page to restart", { font: "36px Arial", fill: "white" });
+  reload1.setScrollFactor(0);
+  reload1.setActive(false);
+  reload1.setVisible(false);
+
+  reload2 = this.add.text(280, 330, "Reload the page to restart", { font: "25px Arial", fill: "white" });
+  reload2.setScrollFactor(0);
+  reload2.setActive(false);
+  reload2.setVisible(false);
 }
 
 function update ()
@@ -181,17 +207,25 @@ function update ()
 
       if (gameOver)
       {
-        return;
+        return
       }
-      player.setVelocityX(800);
+      player.setVelocityX(650);
       player.anims.play('right', true);
 
       top_water.y += -0.12;
       water.y += -0.12;
 
-      this.physics.add.overlap(player, water, drown, null, this);
+      tornado1.setVelocityX(-150);
+      tornado2.setVelocityX(-200);
+
+      this.physics.add.collider(tornado1, ground);
+      this.physics.add.collider(tornado2, ground);
+      this.physics.add.collider(player, ground);
+      this.physics.add.overlap(player, water, death, null, this);
       this.physics.add.overlap(player, pala_eolica, water_down, null, this);
       this.physics.add.overlap(player, oil, water_up, null, this);
+      this.physics.add.overlap(player,tornado1, death, null, this);
+      this.physics.add.overlap(player,tornado2, death, null, this);
       this.physics.add.overlap(player, winObject, gameWin, null, this);
 
       //console.log(player.body.velocity.y);
@@ -201,12 +235,19 @@ function gameWin(player, winObject) {
     this.physics.pause();
     tip.setActive(true);
     tip.setVisible(true);
+
+    reload2.setActive(true);
+    reload2.setVisible(true);
     gameOver = true;
 }
 
-function drown(player, water) {
+function death(player, deathfactor) {
   this.physics.pause();
+  gameover_tip.setActive(true);
+  gameover_tip.setVisible(true);
 
+  reload1.setActive(true);
+  reload1.setVisible(true);
   gameOver = true;
 }
 function water_down(player, pala_eolica) {
