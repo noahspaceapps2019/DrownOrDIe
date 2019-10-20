@@ -18,6 +18,7 @@ var config = {
         create: create,
         update: update
 
+
     }
 };
 
@@ -30,9 +31,10 @@ var oil
 var tornado
 var cursors
 var jumpForce = -800
-var wrlt = 0
 var timedEvent1
 var timedEvent2
+var winObject
+var win = false
 var gameOver = false
 
 
@@ -56,7 +58,7 @@ function create ()
 {
   bg = this.add.tileSprite(0, 0, 16069, 608, 'bg');
   bg.setOrigin(0, 0);
-  bg.setScale(1.2);
+  bg.setScale(2.2);
 
 
 
@@ -79,15 +81,6 @@ function create ()
 
   this.physics.add.collider(player, ground);
 
-  top_water = this.add.tileSprite(0,700, 16069, 205, 'top_water');
-  top_water.setOrigin(0, 0);
-  top_water.setScale(4);
-  top_water.setAlpha(0.7);
-  water = this.add.tileSprite(0, 870, 16069, 714, 'top_water');
-  water.setOrigin(0, 0);
-  water.setScale(4);
-  water.setAlpha(0.7);
-
   pala_eolica = this.physics.add.group({
     key: 'pala_eolica',
     repeat: 4,
@@ -96,7 +89,7 @@ function create ()
 
   pala_eolica.children.iterate(function (child){
 
-    child.setScale(0.2);
+    child.setScale(0.3);
     child.body.setAllowGravity(false);
 
   });
@@ -104,15 +97,24 @@ function create ()
   oil = this.physics.add.group({
     key: 'oil',
     repeat: 6,
-    setXY: {x: 1250, y: 600, stepX: 3800}
+    setXY: {x: 1250, y: 590, stepX: 3800}
   });
 
   oil.children.iterate(function (child){
 
-    child.setScale(0.1);
+    child.setScale(0.3);
     child.body.setAllowGravity(false);
 
   });
+
+  top_water = this.add.tileSprite(0,700, 16069, 205, 'top_water');
+  top_water.setOrigin(0, 0);
+  top_water.setScale(5);
+  top_water.setAlpha(0.7);
+  water = this.add.tileSprite(0, 870, 16069, 714, 'top_water');
+  water.setOrigin(0, 0);
+  water.setScale(5);
+  water.setAlpha(0.7);
 
   this.physics.add.existing(top_water);
   top_water.body.setAllowGravity(false);
@@ -120,7 +122,7 @@ function create ()
   water.body.setAllowGravity(false);
 
   var button = this.add.image(1080-16, 16, 'fullscreen', 0).setOrigin(1, 0).setInteractive();
-  button.setScale(0.1);
+  button.setScale(0.4);
   button.on('pointerup', function () {
 
           if (this.scale.isFullscreen)
@@ -159,13 +161,16 @@ function create ()
 
   timedEvent1 = this.time.delayedCall({delay: 1000, callBack: water_down, callBackScope: this});
   timedEvent2 = this.time.delayedCall({delay: 1000, callBack: water_up, callBackScope: this});
+
+  winObject = this.add.sprite(16069 - 100, 50, 'pala_eolica');
+  winObject.setScale(0.8);
 }
 
 function update ()
 {
       if (gameOver)
       {
-        this.scene.start("Drown.death");
+        return;
       }
       player.setVelocityX(500);
       player.anims.play('right', true);
