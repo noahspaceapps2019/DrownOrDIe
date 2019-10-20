@@ -160,6 +160,7 @@ function create ()
 
   this.input.on('pointerdown', function (pointer, jump) {
       jump = 0
+      player.setVelocityX(650);
       if (player.body.touching.down && jump === 0)
       {
           player.setVelocityY(jumpForce);
@@ -200,17 +201,18 @@ function create ()
   reload2.setScrollFactor(0);
   reload2.setActive(false);
   reload2.setVisible(false);
+
+  this.add.text(50, 330, "Touch to RUN",{ font: "30px Arial", fill: "white" } );
 }
 
 function update ()
 {
 
+      player.anims.play('right', true);
       if (gameOver)
       {
         return
       }
-      player.setVelocityX(650);
-      player.anims.play('right', true);
 
       top_water.y += -0.12;
       water.y += -0.12;
